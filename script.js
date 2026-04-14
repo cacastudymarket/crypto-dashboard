@@ -9,6 +9,68 @@ const modalClose = document.getElementById('modalClose');
 let allCoins = [];
 let chartInstance = null;
 let currentCurrency = 'USD';
+let watchlist = JSON.parse(localStorage.getItem('watchlist') || '[]');
+let currentTab = 'all';
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tabAll').classList.toggle('active', tab === 'all');
+  document.getElementById('tabWatchlist').classList.toggle('active', tab === 'watchlist');
+  
+  if (tab === 'watchlist') {
+    document.getElementById('watchlistContainer').style.display = 'block';
+    document.getElementById('cardsContainer').style.display = 'none';
+    const watchlistCoins = allCoins.filter(coin => watchlist.includes(coin.id));
+    document.getElementById('watchlistCards').innerHTML = watchlistCoins.length > 0
+      ? watchlistCoins.map(coin => createCard(coin)).join('')
+      : '<p class="loading">No coins in watchlist yet. Click ⭐ to add!</p>';
+  } else {
+    document.getElementById('watchlistContainer').style.display = 'none';
+    document.getElementById('cardsContainer').style.display = 'grid';
+    renderCards(allCoins);
+  }
+}
+
+function toggleWatchlist(coinId, event) {
+  event.stopPropagation();
+  if (watchlist.includes(coinId)) {
+    watchlist = watchlist.filter(id => id !== coinId);
+  } else {
+    watchlist.push(coinId);
+  }
+  localStorage.setItem('watchlist', JSON.stringify(watchlist));
+  renderCards(allCoins);
+}
+
+function createCard(coin) {
+  const change = coin.price_change_percentage_24h;
+  const isPositive = change >= 0;
+  const isWatchlisted = watchlist.includes(coin.id);
+
+  return `
+    <div class="card" onclick="openModal('${coin.id}')">
+      <button class="star-btn ${isWatchlisted ? 'active' : ''}" onclick="toggleWatchlist('${coin.id}', event)">
+        ${isWatchlisted ? '⭐' : '☆'}
+      </button>
+      <div class="card-header">
+        <img src="${coin.image}" alt="${coin.name}" />
+        <div>
+          <h2>${coin.name}</h2>
+          <span>${coin.symbol}</span>
+        </div>
+      </div>
+      <div class="price">${formatPrice(coin.current_price)}</div>
+      <div class="change ${isPositive ? 'positive' : 'negative'}">
+        ${isPositive ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}%
+      </div>
+      <div class="meta">
+        Market Cap: $${(coin.market_cap / 1e9).toFixed(2)}B<br/>
+        Volume 24h: $${(coin.total_volume / 1e6).toFixed(2)}M<br/>
+        Rank: #${coin.market_cap_rank}
+      </div>
+    </div>
+  `;
+}
 const USD_TO_IDR = 16500;
 
 function setCurrency(currency) {
@@ -43,31 +105,7 @@ function renderCards(coins) {
     return;
   }
 
-  cardsContainer.innerHTML = coins.map(coin => {
-    const change = coin.price_change_percentage_24h;
-    const isPositive = change >= 0;
-
-    return `
-      <div class="card" onclick="openModal('${coin.id}')">
-        <div class="card-header">
-          <img src="${coin.image}" alt="${coin.name}" />
-          <div>
-            <h2>${coin.name}</h2>
-            <span>${coin.symbol}</span>
-          </div>
-        </div>
-        <div class="price">${formatPrice(coin.current_price)}</div>
-        <div class="change ${isPositive ? 'positive' : 'negative'}">
-          ${isPositive ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}%
-        </div>
-        <div class="meta">
-          Market Cap: $${(coin.market_cap / 1e9).toFixed(2)}B<br/>
-          Volume 24h: $${(coin.total_volume / 1e6).toFixed(2)}M<br/>
-          Rank: #${coin.market_cap_rank}
-        </div>
-      </div>
-    `;
-  }).join('');
+  cardsContainer.innerHTML = coins.map(coin => createCard(coin)).join('');
 }
 
 async function openModal(coinId) {

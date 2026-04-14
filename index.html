@@ -26,11 +26,21 @@
     <div class="search-bar">
       <input type="text" id="searchInput" placeholder="Search crypto..." />
     </div>
-    
+
     <div class="currency-toggle">
       <button class="currency-btn active" id="btnUSD" onclick="setCurrency('USD')">USD</button>
       <button class="currency-btn" id="btnIDR" onclick="setCurrency('IDR')">IDR</button>
     </div>
+    <!-- Watchlist -->
+<div class="watchlist-container" id="watchlistContainer" style="display:none;">
+  <h3 class="watchlist-title">⭐ My Watchlist</h3>
+  <div class="cards-container" id="watchlistCards"></div>
+</div>
+
+<div class="tab-container">
+  <button class="tab-btn active" id="tabAll" onclick="switchTab('all')">All Coins</button>
+  <button class="tab-btn" id="tabWatchlist" onclick="switchTab('watchlist')">⭐ Watchlist</button>
+</div>
 
     <div class="cards-container" id="cardsContainer">
       <p class="loading">Loading data...</p>
