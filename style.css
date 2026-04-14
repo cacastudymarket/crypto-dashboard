@@ -270,3 +270,34 @@ footer {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
+/* Currency Toggle */
+.currency-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 auto 20px;
+}
+
+.currency-btn {
+  padding: 8px 24px;
+  border-radius: 8px;
+  border: 1px solid #30363d;
+  background: #161b22;
+  color: #8b949e;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.currency-btn.active {
+  background: #58a6ff;
+  border-color: #58a6ff;
+  color: #0d1117;
+}
+
+.currency-btn:hover {
+  border-color: #58a6ff;
+  color: #58a6ff;
+}

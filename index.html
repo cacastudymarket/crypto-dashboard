@@ -26,6 +26,11 @@
     <div class="search-bar">
       <input type="text" id="searchInput" placeholder="Search crypto..." />
     </div>
+    
+    <div class="currency-toggle">
+      <button class="currency-btn active" id="btnUSD" onclick="setCurrency('USD')">USD</button>
+      <button class="currency-btn" id="btnIDR" onclick="setCurrency('IDR')">IDR</button>
+    </div>
 
     <div class="cards-container" id="cardsContainer">
       <p class="loading">Loading data...</p>

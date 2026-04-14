@@ -8,6 +8,23 @@ const modalClose = document.getElementById('modalClose');
 
 let allCoins = [];
 let chartInstance = null;
+let currentCurrency = 'USD';
+const USD_TO_IDR = 16500;
+
+function setCurrency(currency) {
+  currentCurrency = currency;
+  document.getElementById('btnUSD').classList.toggle('active', currency === 'USD');
+  document.getElementById('btnIDR').classList.toggle('active', currency === 'IDR');
+  renderCards(allCoins);
+}
+
+function formatPrice(usdPrice) {
+  if (currentCurrency === 'IDR') {
+    const idr = usdPrice * USD_TO_IDR;
+    return `Rp ${idr.toLocaleString('id-ID')}`;
+  }
+  return `$${usdPrice.toLocaleString()}`;
+}
 
 async function fetchCryptoData() {
   try {
@@ -39,7 +56,7 @@ function renderCards(coins) {
             <span>${coin.symbol}</span>
           </div>
         </div>
-        <div class="price">$${coin.current_price.toLocaleString()}</div>
+        <div class="price">${formatPrice(coin.current_price)}</div>
         <div class="change ${isPositive ? 'positive' : 'negative'}">
           ${isPositive ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}%
         </div>
