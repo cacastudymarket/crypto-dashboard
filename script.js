@@ -138,4 +138,41 @@ searchInput.addEventListener('input', () => {
   renderCards(filtered);
 });
 
+async function fetchFearGreed() {
+  try {
+    const res = await fetch('https://api.alternative.me/fng/');
+    const data = await res.json();
+    const value = data.data[0].value;
+    const text = data.data[0].value_classification;
+
+    const fngValue = document.getElementById('fngValue');
+    const fngText = document.getElementById('fngText');
+    const fngBox = document.getElementById('fngBox');
+
+    fngValue.textContent = value;
+    fngText.textContent = text;
+
+    if (value <= 25) {
+      fngValue.style.color = '#f85149';
+      fngText.style.color = '#f85149';
+    } else if (value <= 45) {
+      fngValue.style.color = '#e3b341';
+      fngText.style.color = '#e3b341';
+    } else if (value <= 55) {
+      fngValue.style.color = '#8b949e';
+      fngText.style.color = '#8b949e';
+    } else if (value <= 75) {
+      fngValue.style.color = '#3fb950';
+      fngText.style.color = '#3fb950';
+    } else {
+      fngValue.style.color = '#58a6ff';
+      fngText.style.color = '#58a6ff';
+    }
+
+  } catch (err) {
+    document.getElementById('fngText').textContent = 'Unavailable';
+  }
+}
+
+fetchFearGreed();
 fetchCryptoData();
