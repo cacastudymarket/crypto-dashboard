@@ -1,9 +1,13 @@
+
 const API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=20&page=1&sparkline=false';
 
 const cardsContainer = document.getElementById('cardsContainer');
 const searchInput = document.getElementById('searchInput');
+const modalOverlay = document.getElementById('modalOverlay');
+const modalClose = document.getElementById('modalClose');
 
 let allCoins = [];
+let chartInstance = null;
 
 async function fetchCryptoData() {
   try {
@@ -27,7 +31,7 @@ function renderCards(coins) {
     const isPositive = change >= 0;
 
     return `
-      <div class="card">
+      <div class="card" onclick="openModal('${coin.id}')">
         <div class="card-header">
           <img src="${coin.image}" alt="${coin.name}" />
           <div>
@@ -48,6 +52,82 @@ function renderCards(coins) {
     `;
   }).join('');
 }
+
+async function openModal(coinId) {
+  modalOverlay.classList.add('active');
+
+  try {
+    const res = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId}?localization=false&tickers=false&community_data=false&developer_data=false`);
+    const coin = await res.json();
+
+    document.getElementById('modalImg').src = coin.image.large;
+    document.getElementById('modalName').textContent = coin.name;
+    document.getElementById('modalSymbol').textContent = coin.symbol.toUpperCase();
+    document.getElementById('modalPrice').textContent = `$${coin.market_data.current_price.usd.toLocaleString()}`;
+
+    const change = coin.market_data.price_change_percentage_24h;
+    const changeEl = document.getElementById('modalChange');
+    changeEl.textContent = `${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}%`;
+    changeEl.style.color = change >= 0 ? '#3fb950' : '#f85149';
+
+    document.getElementById('modalMarketCap').textContent = `$${(coin.market_data.market_cap.usd / 1e9).toFixed(2)}B`;
+    document.getElementById('modalVolume').textContent = `$${(coin.market_data.total_volume.usd / 1e6).toFixed(2)}M`;
+    document.getElementById('modalATH').textContent = `$${coin.market_data.ath.usd.toLocaleString()}`;
+    document.getElementById('modalSupply').textContent = `${(coin.market_data.circulating_supply / 1e6).toFixed(2)}M`;
+
+    // Chart
+    const chartRes = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=7`);
+    const chartData = await chartRes.json();
+    const prices = chartData.prices.map(p => p[1]);
+    const labels = chartData.prices.map(p => {
+      const d = new Date(p[0]);
+      return `${d.getMonth()+1}/${d.getDate()}`;
+    });
+
+    if (chartInstance) chartInstance.destroy();
+
+    const ctx = document.getElementById('modalChart').getContext('2d');
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: '7-Day Price (USD)',
+          data: prices,
+          borderColor: '#58a6ff',
+          backgroundColor: 'rgba(88,166,255,0.1)',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.4,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#8b949e', maxTicksLimit: 7 }, grid: { color: '#21262d' } },
+          y: { ticks: { color: '#8b949e' }, grid: { color: '#21262d' } }
+        }
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+modalClose.addEventListener('click', () => {
+  modalOverlay.classList.remove('active');
+  if (chartInstance) chartInstance.destroy();
+});
+
+modalOverlay.addEventListener('click', (e) => {
+  if (e.target === modalOverlay) {
+    modalOverlay.classList.remove('active');
+    if (chartInstance) chartInstance.destroy();
+  }
+});
 
 searchInput.addEventListener('input', () => {
   const query = searchInput.value.toLowerCase();

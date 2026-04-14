@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Crypto Dashboard</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
@@ -26,7 +27,46 @@
   <footer>
     <p>Data from CoinGecko API · Built by Cahya Ratri Lukita Putri</p>
   </footer>
-
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-header">
+      <img id="modalImg" src="" alt="" />
+      <div>
+        <h2 id="modalName"></h2>
+        <span id="modalSymbol"></span>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stat">
+        <span>Price</span>
+        <strong id="modalPrice"></strong>
+      </div>
+      <div class="modal-stat">
+        <span>24h Change</span>
+        <strong id="modalChange"></strong>
+      </div>
+      <div class="modal-stat">
+        <span>Market Cap</span>
+        <strong id="modalMarketCap"></strong>
+      </div>
+      <div class="modal-stat">
+        <span>Volume 24h</span>
+        <strong id="modalVolume"></strong>
+      </div>
+      <div class="modal-stat">
+        <span>All Time High</span>
+        <strong id="modalATH"></strong>
+      </div>
+      <div class="modal-stat">
+        <span>Circulating Supply</span>
+        <strong id="modalSupply"></strong>
+      </div>
+    </div>
+    <canvas id="modalChart"></canvas>
+  </div>
+</div>
   <script src="script.js"></script>
 </body>
 </html>
